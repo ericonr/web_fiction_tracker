@@ -1,8 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<div id=loading></div>
 
-  <div id=content>
   <form action="{{ url_for('close_server') }}" method=post class=add-entry>
     <dl>
       <dd><input type=submit name=exit value="Close server">
@@ -50,5 +48,4 @@
   {% endfor %}
   </ul>
 
-</div>
 {% endblock %}
