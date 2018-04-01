@@ -1,0 +1,3 @@
+graft web_fiction_tracker/templates
+graft web_fiction_tracker/static
+include web_fiction_tracker/schema.sql

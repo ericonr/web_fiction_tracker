@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <dt>Story id:
+        <dd><input type=text size=30 name=story_id>
+        <dt>Chapter:
+        <dd><input type=int size=30 name=chapter>
+        <!-- <dt>Text:
+        <dd><textarea name=text rows=5 cols=40></textarea> -->
+        <dd><input type=submit value=Add>
+      </dl>
+    </form>
+  {% endif %}
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} <a href={{entry.next_chapter_link}}>Next chapter</a> Last chapter available: {{entry.last_chapter_available}}
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+{% endblock %}
