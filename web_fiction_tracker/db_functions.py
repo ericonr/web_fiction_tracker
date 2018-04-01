@@ -5,7 +5,9 @@ from pathlib import Path
 from flask import current_app as app
 
 def progress(index, length):
-    print(str(index+1) + '/' + str(length))
+    string= str(index+1) + '/' + str(length)
+    print(string)
+    return(string)
 
 def connect_db():
     """Connects to the specific database."""
@@ -31,3 +33,7 @@ def input_db_ffnet(db, fic, folder):
     if fic.exists:
         db.execute('insert into fiction_ffnet (id, title, first_chapter_link, chapter, next_chapter_numb, next_chapter_link, last_chapter_numb, hidden, folder) values (?,?,?,?,?,?,?,?,?)',
             [fic.id, fic.title, fic.first_chapter_link, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_numb, False, fic.folder])
+
+def update_db_ffnet(db, fic, hide):
+    db.execute('update fiction_ffnet set chapter=?,next_chapter_numb=?,next_chapter_link=?,hidden=? where id=?',
+        [fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, hide, fic.id])

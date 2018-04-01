@@ -1,18 +1,22 @@
 {% extends "layout.html" %}
 {% block body %}
+<div id=loading></div>
+
+  <div id=content>
+  <form action="{{ url_for('close_server') }}" method=post class=add-entry>
+    <dl>
+      <dd><input type=submit name=exit value="Close server">
+    </dl>
+  </form>
+
   {% if session.logged_in %}
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
       <dl>
         <select name=type>
           <option value=fiction_ffnet>fanfiction.net</option>
         </select>
-
-        <dt>Story id:
-        <dd><input type=text size=30 name=story_id>
-        <dt>Chapter:
-        <dd><input type=int size=30 name=chapter>
-        <!-- <dt>Text:
-        <dd><textarea name=text rows=5 cols=40></textarea> -->
+        <dd><input type=text size=30 name=story_id placeholder="Story id">
+        <dd><input type=int size=10 name=chapter placeholder=Chapter>
         <dd><input type=submit value=Add>
       </dl>
     </form>
@@ -20,7 +24,7 @@
 
   <form action="{{ url_for('refresh') }}" method=post class=add-entry>
     <dl>
-      <dd><input type=submit name=refresh_button value=Refresh>
+      <dd><input type=submit name=refresh_button value=Refresh onclick="loading();">
     </dl>
   </form>
 
@@ -40,12 +44,11 @@
   {% for entry in entries %}
     <li><h2><a href={{entry.first_chapter_link}}>{{ entry.title }}</a></h2> Last chapter read: {{ entry.chapter }} {% if entry.chapter != entry.next_chapter_numb %} - <a href={{entry.next_chapter_link}}>next chapter ({{ entry.next_chapter_numb }})</a> {% endif %} - last chapter available: {{entry.last_chapter_numb}}    
 
-    <form action="{{ url_for('entry_hide', table=entry.table, entry=entry.id) }}" method=post class=filter>
-      <dd><input type=checkbox name=hidden {% if entry.hidden %} checked {% endif %}>hide</dd>
-      <dd><input type=submit value=reload></dd>
+    <form action="{{ url_for('entry_update', table=entry.table, entry=entry.id) }}" method=post class=hide-entry>
+      <input type=int size=10 name=new_chapter placeholder="Chapter"><input type=checkbox name=hide {% if entry.hidden %} checked {% endif %}>hide <input type=submit value=reload>
     </form>
   {% endfor %}
   </ul>
+
+</div>
 {% endblock %}
-
-

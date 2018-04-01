@@ -10,8 +10,9 @@ from web_fiction_tracker.db_functions import *
 
 class fiction_ffnet(fiction):
     base_link = 'https://m.fanfiction.net'
-    def __init__(self, link, init=False, **kwargs):
+    def __init__(self, link, init=False, test_next=False,**kwargs):
         self.id, self.chapter = link
+        self.test_next = test_next
 
         link_suffix = '/s/' + self.id + '/' + str(self.chapter)
 
@@ -29,11 +30,14 @@ class fiction_ffnet(fiction):
             self.title = temp_list[0]
 
         temp_list = [link['href'] for link in self.page.find_all('a') if 'Next' in str(link.string)]
-        if len(temp_list) > 0:
-            self._next_link = self.base_link + temp_list[0]
-            self._has_next = True
-        else:
-            self._has_next = False
+        self._has_next = len(temp_list) > 0
+
+        if self.test_next:
+            if self._has_next:
+                self.next_chapter_numb = self.chapter + 1
+            else:
+                self.next_chapter_numb = self.chapter
+            self.next_chapter_link = self.return_url(self.next_chapter_numb)
 
     def find_nexts(self):
         if self._has_next:
@@ -74,7 +78,10 @@ class fiction_ffnet(fiction):
         verif = fiction_ffnet((self.id, int(self.last_chapter_numb)), init=True)
         verif.find_nexts()
 
-        return verif.last_chapter_numb
+        if self.last_chapter_numb == self.next_chapter_numb and self.last_chapter_numb != verif.last_chapter_numb:
+            self.next_chapter_numb = self.next_chapter_numb + 1
+            self.next_chapter_link = self.return_url (self.next_chapter_numb)
+        self.last_chapter_numb = verif.last_chapter_numb
 
     def show(self, may_hide):
         if not may_hide:

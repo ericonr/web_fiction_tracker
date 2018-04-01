@@ -1,11 +1,11 @@
 import sqlite3
+import multiprocessing as mp
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from pathlib import Path
 
 from web_fiction_tracker.db_functions import *
 from web_fiction_tracker.bookmarks import *
-
-from contextlib import closing
+from web_fiction_tracker.forms import *
 
 app = Flask(__name__) # create the application instance :)
 app.config.from_object(__name__) # load config from this file , flaskr.py
@@ -19,7 +19,8 @@ app.config.update(dict(
 ))
 app.config.from_envvar('WEB_FICTION_TRACKER_SETTINGS', silent=True)
 
-global_dict = {'type':'all', 'hide_update':True, 'hide_hidden':True}
+hu, hh = 'hide_update', 'hide_hidden'
+global_dict = {'type':'all', hu:True, hh:True}
 
 #cli_commands
 
@@ -45,10 +46,20 @@ def import_bookmarks():
 
 #routes - make add and refresh threaded
 
+@app.route('/close_server')
+def close_server(methods=['GET', 'POST']):
+    def shutdown_server():
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+    shutdown_server()
+    return 'Server shutting down...'
+
+
 @app.route('/')
 def show_entries():
     db = get_db()
-
     if global_dict['type'] == 'fiction_ffnet' or global_dict['type'] == 'all':
         cur = db.execute('select * from fiction_ffnet')
         temp_list = cur.fetchall()
@@ -56,58 +67,35 @@ def show_entries():
         entries = []
         for element in temp_list:
             fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'])
-            if fic.show(global_dict['hide_update']) and not element['hidden']:
+            if fic.show(global_dict[hu]) and (not element['hidden'] or not global_dict[hh]):
                 element = dict(element)
                 element['table'] = 'fiction_ffnet'
                 entries.append(element)
 
     return render_template('show_entries.html', entries=entries, hides=global_dict)
 
-@app.route('/refresh', methods=['POST'])
-def refresh():
-    db = get_db()
-
-    #fiction_ffnet table
-    cur = db.execute('select * from fiction_ffnet')
-    temp_list = cur.fetchall()
-    length = len(temp_list)
-
-    for index, element in enumerate(temp_list):
-        fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
-        fic.verify_last()
-        if fic.last_chapter_numb != element['last_chapter_numb']:
-            db.execute('update fiction_ffnet set last_chapter_numb=? where id=?', [fic.last_chapter_numb, fic.id])
-        progress(index, length)
-    db.commit()
-    flash('Data refreshed')
 
 @app.route('/filter', methods=['POST'])
 def choose_what_to_show():
-    if 'hide_update' in request.form.keys():
-        global_dict['hide_update'] = True
-    else:
-        global_dict['hide_update'] = False
-    if 'hide_hidden' in request.form.keys():
-        global_dict['hide_hidden'] = True
-    else:
-        global_dict['hide_hidden'] = False
+    global_dict[hu], global_dict[hh] = verify_keys(request.form, hu, hh)
     global_dict['type'] = request.form['type']
 
     return redirect(url_for('show_entries'))
 
-@app.route('/entry_hide/<table>/<entry>')
-def entry_hide(table, entry):
+
+@app.route('/entry_update/<table>/<entry>', methods=['GET', 'POST'])
+def entry_update(table, entry):
     db = get_db()
 
-    if 'hide' in request.form.keys():
-        hide = True
-    else:
-        hide = False
+    hide, = verify_keys(request.form, 'hide')
+    new_chapter = int(request.form['new_chapter'])
+    fic = fiction_ffnet((entry, new_chapter), init=True, test_next=True)
 
-    db.execute('update ? set hidden=? where id=?', [table, hide, entry])
+    update_db_ffnet(db, fic, hide)
     db.commit()
 
     return redirect(url_for('show_entries'))
+
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -122,7 +110,7 @@ def add_entry():
         fetch_db = cursor.fetchone()
 
         if fetch_db == None:
-            fic = fiction_ffnet((request.form['story_id'], request.form['chapter']), init=True)
+            fic = fiction_ffnet((request.form['story_id'], int(request.form['chapter'])), init=True)
             fic.read_page()
             fic.find_nexts()
             input_db_ffnet(db, fic, 'main')
@@ -132,6 +120,33 @@ def add_entry():
             flash('Entry already exists')
             pass
 
+    return redirect(url_for('show_entries'))
+
+
+def refresh_thread(app,flash):
+    db = sqlite3.connect(app.config['DATABASE'])
+    db.row_factory = sqlite3.Row
+
+    cur = db.execute('select * from fiction_ffnet')
+    temp_list = cur.fetchall()
+    length = len(temp_list)
+
+    for index, element in enumerate(temp_list):
+        fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
+        fic.verify_last()
+        if fic.last_chapter_numb != element['last_chapter_numb']:
+            update_db_ffnet(db, fic, element['hidden'])
+        progress(index, length)
+    db.commit()
+    flash('Database refreshed')
+
+#refresh_function = mp.Process(target=refresh_thread, args=(app,))
+@app.route('/refresh', methods=['POST'])
+def refresh():
+    '''refresh_function = mp.Process(target=refresh_thread, args=(app,flash))
+    refresh_function.start()'''
+    refresh_thread(app,flash)
+    
     return redirect(url_for('show_entries'))
 
 
