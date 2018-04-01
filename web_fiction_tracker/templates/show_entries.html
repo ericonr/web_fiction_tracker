@@ -3,6 +3,10 @@
   {% if session.logged_in %}
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
       <dl>
+        <select name=type>
+          <option value=fiction_ffnet>fanfiction.net</option>
+        </select>
+
         <dt>Story id:
         <dd><input type=text size=30 name=story_id>
         <dt>Chapter:
@@ -13,9 +17,20 @@
       </dl>
     </form>
   {% endif %}
+
+  <form action="{{ url_for('refresh') }}" method=post class=add-entry>
+    <dl>
+      <dd><input type=button value=Refresh>
+    </dl>
+  </form>
+
   <ul class=entries>
   {% for entry in entries %}
-    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} <a href={{entry.next_chapter_link}}>Next chapter</a> Last chapter available: {{entry.last_chapter_available}}
+    {% if entry.chapter != entry.next_chapter_numb %}
+    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} - <a href={{entry.next_chapter_link}}>next chapter ({{ entry.next_chapter_numb }})</a> - last chapter available: {{entry.last_chapter_numb}}
+    {% else %}
+    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} - last chapter available: {{entry.last_chapter_numb}}
+    {% endif %}
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}

@@ -4,6 +4,9 @@ from pathlib import Path
 
 from flask import current_app as app
 
+def progress(index, length):
+    print(str(index+1) + '/' + str(length))
+
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
@@ -26,5 +29,5 @@ def init_db():
 
 def input_db_ffnet(db, fic):
     if fic.exists:
-        db.execute('insert into entries (id, title, chapter, next_chapter_numb, next_chapter_link, last_chapter_available) values (?,?,?,?,?,?)',
-            [fic.story, fic.title, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_available])
+        db.execute('insert into fiction_ffnet (id, title, chapter, next_chapter_numb, next_chapter_link, last_chapter_numb) values (?,?,?,?,?,?)',
+            [fic.story, fic.title, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_numb])

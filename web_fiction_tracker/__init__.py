@@ -1,1 +1,2 @@
 from .web_fiction_tracker import app
+import web_fiction_tracker.bookmarks

@@ -101,6 +101,6 @@ ENV/
 .mypy_cache/
 
 *.sublime*
-.db
+*.db
 
 web_fiction_tracker/bookmarks.html
