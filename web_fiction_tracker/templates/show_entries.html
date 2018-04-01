@@ -20,19 +20,32 @@
 
   <form action="{{ url_for('refresh') }}" method=post class=add-entry>
     <dl>
-      <dd><input type=button value=Refresh>
+      <dd><input type=submit name=refresh_button value=Refresh>
+    </dl>
+  </form>
+
+  <form action="{{ url_for('choose_what_to_show') }}" method=post class=filter>
+    <dl>
+      <select name=type>
+        <option value=all>All</option>
+        <option value=fiction_ffnet>fanfiction.net</option>
+      </select>
+      <dd><input type=checkbox name=hide_update {% if hides.hide_update %} checked {% endif %}>Hide non updated</dd>
+      <dd><input type=checkbox name=hide_hidden {% if hides.hide_hidden %} checked {% endif %}>Hide hidden stuff</dd>
+      <dd><input type=submit value=Filter></dd>
     </dl>
   </form>
 
   <ul class=entries>
   {% for entry in entries %}
-    {% if entry.chapter != entry.next_chapter_numb %}
-    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} - <a href={{entry.next_chapter_link}}>next chapter ({{ entry.next_chapter_numb }})</a> - last chapter available: {{entry.last_chapter_numb}}
-    {% else %}
-    <li><h2>{{ entry.title }}</h2> Last chapter read: {{ entry.chapter }} - last chapter available: {{entry.last_chapter_numb}}
-    {% endif %}
-  {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><h2><a href={{entry.first_chapter_link}}>{{ entry.title }}</a></h2> Last chapter read: {{ entry.chapter }} {% if entry.chapter != entry.next_chapter_numb %} - <a href={{entry.next_chapter_link}}>next chapter ({{ entry.next_chapter_numb }})</a> {% endif %} - last chapter available: {{entry.last_chapter_numb}}    
+
+    <form action="{{ url_for('entry_hide', table=entry.table, entry=entry.id) }}" method=post class=filter>
+      <dd><input type=checkbox name=hidden {% if entry.hidden %} checked {% endif %}>hide</dd>
+      <dd><input type=submit value=reload></dd>
+    </form>
   {% endfor %}
   </ul>
 {% endblock %}
+
+

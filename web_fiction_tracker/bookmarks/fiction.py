@@ -14,6 +14,9 @@ class fiction():
         self.next_chapter_numb_list = []
         self.title = ''
 
+        self.first_chapter_link = self.return_url(1)
+        self.folder = 'main'
+
         if init:
             self.read_page()
 

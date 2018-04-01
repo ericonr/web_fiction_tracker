@@ -35,7 +35,7 @@ def import_bookmarks_ffnet(db):
         fic.read_page()
         fic.find_nexts()
         if fic.exists:
-            input_db_ffnet(db, fic)
+            input_db_ffnet(db, fic, 'main')
         progress(index,length)
     db.commit()
     print('Imported bookmarks.')

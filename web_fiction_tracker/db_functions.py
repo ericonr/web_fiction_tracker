@@ -27,7 +27,7 @@ def init_db():
         db.cursor().executescript(f.read())
     db.commit()
 
-def input_db_ffnet(db, fic):
+def input_db_ffnet(db, fic, folder):
     if fic.exists:
-        db.execute('insert into fiction_ffnet (id, title, chapter, next_chapter_numb, next_chapter_link, last_chapter_numb) values (?,?,?,?,?,?)',
-            [fic.story, fic.title, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_numb])
+        db.execute('insert into fiction_ffnet (id, title, first_chapter_link, chapter, next_chapter_numb, next_chapter_link, last_chapter_numb, hidden, folder) values (?,?,?,?,?,?,?,?,?)',
+            [fic.id, fic.title, fic.first_chapter_link, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_numb, False, fic.folder])
