@@ -6,6 +6,7 @@ from pathlib import Path
 from web_fiction_tracker.db_functions import *
 from web_fiction_tracker.bookmarks import *
 from web_fiction_tracker.forms import *
+from web_fiction_tracker.progress_bar import *
 
 app = Flask(__name__) # create the application instance :)
 app.config.from_object(__name__) # load config from this file , flaskr.py
@@ -131,6 +132,7 @@ def refresh_thread(app,flash):
     temp_list = cur.fetchall()
     length = len(temp_list)
 
+    bar = ProgressBar(length, 40, 'Fics refreshed', show_elements=True)
     for index, element in enumerate(temp_list):
         try:
             fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
@@ -141,7 +143,9 @@ def refresh_thread(app,flash):
             
         if fic.last_chapter_numb != element['last_chapter_numb']:
             update_db_ffnet(db, fic, element['hidden'])
-        progress(index, length)
+        #progress(index, length)
+        bar.update(index)
+    bar.end()
     db.commit()
     flash('Database refreshed')
 

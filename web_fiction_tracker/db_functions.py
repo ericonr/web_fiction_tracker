@@ -3,6 +3,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from pathlib import Path
 
 from flask import current_app as app
+from web_fiction_tracker.progress_bar import *
 
 def progress(index, length):
     string= str(index+1) + '/' + str(length)
