@@ -150,7 +150,7 @@ def refresh_thread(app,flash):
 def refresh():
     '''refresh_function = mp.Process(target=refresh_thread, args=(app,flash))
     refresh_function.start()'''
-    refresh_thread(app,flash)
+    refresh_thread(app, flash)
     
     return redirect(url_for('show_entries'))
 
@@ -175,3 +175,6 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
+
+if __name__ == '__main__':
+    app.run()

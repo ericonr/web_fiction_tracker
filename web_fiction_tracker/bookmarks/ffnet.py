@@ -78,10 +78,10 @@ class fiction_ffnet(fiction):
         verif = fiction_ffnet((self.id, int(self.last_chapter_numb)), init=True)
         verif.find_nexts()
 
-        if self.last_chapter_numb == self.next_chapter_numb and self.last_chapter_numb != verif.last_chapter_numb:
+'''        if self.last_chapter_numb == self.next_chapter_numb and self.last_chapter_numb != verif.last_chapter_numb:
             self.next_chapter_numb = self.next_chapter_numb + 1
             self.next_chapter_link = self.return_url (self.next_chapter_numb)
-        self.last_chapter_numb = verif.last_chapter_numb
+        self.last_chapter_numb = verif.last_chapter_numb'''
 
     def show(self, may_hide):
         if not may_hide:
