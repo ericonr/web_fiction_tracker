@@ -132,8 +132,12 @@ def refresh_thread(app,flash):
     length = len(temp_list)
 
     for index, element in enumerate(temp_list):
-        fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
-        fic.verify_last()
+        try:
+            fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
+            fic.verify_last()
+        except:
+            continue
+            
         if fic.last_chapter_numb != element['last_chapter_numb']:
             update_db_ffnet(db, fic, element['hidden'])
         progress(index, length)
