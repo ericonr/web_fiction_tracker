@@ -35,5 +35,5 @@ def input_db_ffnet(db, fic, folder):
             [fic.id, fic.title, fic.first_chapter_link, fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_numb, False, fic.folder])
 
 def update_db_ffnet(db, fic, hide):
-    db.execute('update fiction_ffnet set chapter=?,next_chapter_numb=?,next_chapter_link=?,hidden=? where id=?',
-        [fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, hide, fic.id])
+    db.execute('update fiction_ffnet set chapter=?,next_chapter_numb=?,next_chapter_link=?,last_chapter_numb=?,hidden=? where id=?',
+        [fic.chapter, fic.next_chapter_numb, fic.next_chapter_link, fic.last_chapter_link, hide, fic.id])
