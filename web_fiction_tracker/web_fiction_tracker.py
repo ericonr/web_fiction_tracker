@@ -135,7 +135,7 @@ def refresh_thread(app,flash):
         try:
             fic = fiction_ffnet((element['id'], element['chapter']), next_numb=element['next_chapter_numb'], last_numb=element['last_chapter_numb'])
             fic.verify_last()
-        except Error as e:
+        except Exception as e:
             print ('There was an error in', index, ':', e)
             continue
             
