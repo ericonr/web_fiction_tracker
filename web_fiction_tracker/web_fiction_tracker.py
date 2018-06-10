@@ -89,11 +89,11 @@ def entry_update(table, entry):
     db = get_db()
 
     hide, = verify_keys(request.form, 'hide')
-    new_chapter = int(request.form['new_chapter'])
-    fic = fiction_ffnet((entry, new_chapter), init=True, test_next=True)
-
-    update_db_ffnet(db, fic, hide)
-    db.commit()
+    if request.form['new_chapter'] != '':
+        new_chapter = int(request.form['new_chapter'])
+        fic = fiction_ffnet((entry, new_chapter), init=True, test_next=True)
+        update_db_ffnet(db, fic, hide)
+        db.commit()
 
     return redirect(url_for('show_entries'))
 
